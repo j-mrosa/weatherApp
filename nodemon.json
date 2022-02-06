@@ -1,0 +1,4 @@
+{
+    "watch": ["www/", "www/js", "www/css", "www/img"],
+    "ext": "html,css,js"
+}
