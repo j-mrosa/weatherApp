@@ -3,9 +3,103 @@ document.addEventListener('deviceready', onDeviceReady, false);
 function onDeviceReady() {
     //event listeners
     document.querySelector(".currentLocBtn").addEventListener("click", getDeviceCoordinates);
-    document.querySelector(".coordinatesBtn").addEventListener("click", getInputCoordinates);
+    document.querySelector(".searchBtn").addEventListener("click", searchPlaces);
+    document.querySelector(".getWeatherBtn").addEventListener("click", getSelectionCoordinates);
     document.querySelector(".backBtn").addEventListener("click", togglePanels);
+
+    //event handler for each selection in the placesList - applies to child members - tells which row was clicked
+    document.querySelector(".placesList").addEventListener("click", listClickHandler);
+
+    //disable get Weather btn
+    document.querySelector(".getWeatherBtn").disabled = true;
 }
+
+//function that search for matches for places - API call
+async function searchPlaces(){
+    //get input value
+    let input = document.querySelector(".placeInput").value;
+
+    if(input !== ""){
+            //add input to url
+        let url = `https://secure.geonames.org/searchJSON?username=j.mrosa&name_equals=${input}`;
+
+        //try to get the response that matches the url
+        try {
+            let resp = await fetch(url); //resp is a promise
+            let res = await resp.json();
+
+            console.log(res);
+            if (res.totalResultsCount === 0){
+                alert("No places matching this name");
+            }else{
+                displayResults(res);
+            }            
+
+        } catch (error) {
+            console.log(`An error occurred: ${error}`);
+            alert(`An error occurred: ${error}`);
+        }
+    } 
+}
+
+
+function displayResults(res){
+    let html = "";
+
+    let list = res.geonames;
+
+    for (let i = 0; i < list.length; i++) {
+        html += "<p class='listItem'>" + list[i].toponymName + ", "
+                + list[i].adminName1 + ", " + list[i].countryName
+                + "<span class='long' hidden>" + list[i].lng + "</span>" 
+                + "<span class='lat' hidden>" + list[i].lat + "</span>" + "</p>";        
+    }
+
+    document.querySelector(".placesList").innerHTML = html;
+}
+
+//function that handles clicks in the list of results
+function listClickHandler(e){
+    //clear all selections
+    clearSelections();
+
+    //get target element
+    e.target.classList.add("highlight");
+
+    //enable Get Weather button
+    document.querySelector(".getWeatherBtn").disabled = false;
+}
+
+//function that clear all selections on the list
+function clearSelections(){
+    let listItems = document.querySelectorAll(".listItem");
+
+    for (let i = 0; i < listItems.length; i++) {
+        if (listItems[i].classList.contains("highlight")){
+            listItems[i].classList.remove("highlight");
+        }      
+    }
+
+    //disable get weather button
+    document.querySelector(".getWeatherBtn").disabled = true;
+}
+
+function getSelectionCoordinates(){
+    let listItems = document.querySelectorAll(".listItem");
+
+    let long = "";
+    let lat = "";
+
+    for (let i = 0; i < listItems.length; i++) {
+        if (listItems[i].classList.contains("highlight")){
+            long = listItems[i].childNodes[1].innerHTML;
+            lat =listItems[i].childNodes[2].innerHTML;
+        }
+    }
+
+    getLocation(lat,long);
+}
+
 
 //function that gets the location using the device geolocation
 function getDeviceCoordinates(){
@@ -29,14 +123,6 @@ function onError(error){
     alert(`code: ${error.code} \n\n message: ${error.message}`);
 }
 
-//function that get coordinates entered by user
-function getInputCoordinates(){
-    let lat = document.querySelector(".latInput").value;
-    let long = document.querySelector(".longInput").value;
-    getLocation(lat,long);
-}
-
-
 //function that alternate between screens
 function togglePanels(){
     //toggle hide class
@@ -45,6 +131,15 @@ function togglePanels(){
 
     //chages background depending if daytime/nighttime
     changeBackground();
+
+    //clear list of results
+    document.querySelector(".placesList").innerHTML = "";
+
+    //clear input
+    document.querySelector(".placeInput").value = "";
+
+    //disable get weather btn
+    document.querySelector(".getWeatherBtn").disabled = true;
 }
 
 //API call to get the location info
@@ -77,7 +172,8 @@ async function getWeather(lat, long, locationData){
         displayWeather(locationData, weatherData);
     } catch (error) {
         console.log(`An error occurred: ${error}`);
-        alert(`An error occurred: ${error}`);
+        alert("Error: No Observation found for this location.");
+        togglePanels();
     }
 }
 

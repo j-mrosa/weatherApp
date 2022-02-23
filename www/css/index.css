@@ -1,6 +1,6 @@
 html {
     height: 100%;
-   background-color: rgba(7,77,182,1);
+   /* background-color: rgba(7,77,182,1); */
    opacity: 0.8;
    background-image:  radial-gradient(#d9dbfd 0.5px, transparent 0.5px), radial-gradient(#d9dbfd 0.5px, rgba(7,77,182,1) 0.5px);
    background-size: 20px 20px;
@@ -64,6 +64,23 @@ button:active {
   color: #2c5777;
 }
 
+button:disabled{
+  color: #849097;
+  background-color: #b0c6d6;
+  cursor: default;
+}
+
+.searchBtn{
+  margin-bottom: 20px;
+}
+
+.placesList{
+  margin: 0 auto;
+  max-height: 200px;
+  overflow: auto;
+  max-width: 400px;
+}
+
 input{
     background-color: white;
     color: black;
@@ -71,6 +88,11 @@ input{
 
 h1{
     margin-top: 100px;
+}
+
+p{
+  margin: .8rem;
+  cursor: pointer;
 }
 
 .coordinatesContainer, .weatherContainer{
@@ -101,3 +123,8 @@ h1{
     background-repeat: no-repeat; 
     background-size: cover;
 }
+
+.highlight{
+    background-color: rgb(1, 31, 54);
+}
+
