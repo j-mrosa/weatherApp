@@ -1,2 +1,2 @@
 # weatherApp
-A weather android app made with Cordova, that retrieves information from GeonamesAPI
+A Weather Android App build using Cordova Development Framework. Retrieves location and weather data from Geonames API.
